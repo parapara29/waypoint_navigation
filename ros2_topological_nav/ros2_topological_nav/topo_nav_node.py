@@ -2,18 +2,24 @@
 """ Simple Topological Navigation """
 
 import time
-from typing import List, Dict
+from typing import List
 import rclpy
+
+from geometry_msgs.msg import Pose
+from nav2_msgs.action import NavigateToPose
+from ros2_topological_nav_interfaces.action import TopoNav
+from ros2_topological_nav_interfaces.msg import Point
+from ros2_topological_nav_interfaces.srv import (
+    AddPoint,
+    GetPoint,
+    GetPoints
+)
 
 from custom_ros2 import (
     Node,
     ActionSingleServer,
     ActionClient
 )
-
-from nav2_msgs.action import NavigateToPose
-from ros2_topological_nav_interfaces.action import TopoNav
-from ros2_topological_nav_interfaces.srv import AddPoint
 
 
 class TopoNavNode(Node):
@@ -31,7 +37,7 @@ class TopoNavNode(Node):
 
         # declaring params
         self.declare_parameter(nav_action_param_name,
-                               "navigate_to_pose")
+                               "/navigate_to_pose")
         self.declare_parameter(points_param_name, [])
 
         # getting params
@@ -48,7 +54,7 @@ class TopoNavNode(Node):
             self, NavigateToPose, nav_action)
         self.__action_server = ActionSingleServer(self,
                                                   TopoNav,
-                                                  "topo_nav",
+                                                  "navigation",
                                                   execute_callback=self.__execute_server,
                                                   cancel_callback=self.__cancel_callback
                                                   )
@@ -58,6 +64,14 @@ class TopoNavNode(Node):
             AddPoint, "add_point", self.__add_point,
             callback_group=self.__action_server.callback_group)
 
+        self.create_service(
+            GetPoint, "get_point", self.__get_point,
+            callback_group=self.__action_server.callback_group)
+
+        self.create_service(
+            GetPoints, "get_points", self.__get_points,
+            callback_group=self.__action_server.callback_group)
+
     def _load_points(self, points: List[str]):
         """ load points of list strings into a dictionary of floats
 
@@ -65,23 +79,57 @@ class TopoNavNode(Node):
             points (List[str]): list of points
         """
 
-        for i in range(len(points)):
-            mod = i % 5
+        for i in range(0, len(points), 5):
 
-            coords = {
-                1: "x",
-                2: "y",
-                3: "z",
-                4: "w"
-            }
+            self.__points_dict[points[i]] = Pose()
+            self.__points_dict[points[i]].position.x = float(points[i + 1])
+            self.__points_dict[points[i]].position.y = float(points[i + 2])
+            self.__points_dict[points[i]].orientation.z = float(points[i + 3])
+            self.__points_dict[points[i]].orientation.w = float(points[i + 4])
 
-            if mod == 0:
-                self.__points_dict[points[i]] = {}
-            else:
-                self.__points_dict[points[i - mod]
-                                   ][coords[mod]] = float(points[i])
+    def __get_point(self,
+                    req: GetPoint.Request,
+                    res: GetPoint.Response) -> GetPoint.Response:
+        """ srv callback to get a point
 
-    def __add_point(self, req: AddPoint.Request,
+        Args:
+            req (GetPoint.Request): request with the point name
+            res (GetPoint.Response): point
+
+        Returns:
+            GetPoint.Response: point
+        """
+
+        if req.point in self.__points_dict:
+            res.point = Point()
+            res.point.id = req.point
+            res.point.pose = self.__points_dict[req.point]
+
+        return res
+
+    def __get_points(self,
+                     req: GetPoints.Request,
+                     res: GetPoints.Response) -> GetPoints.Response:
+        """ srv callback to get all points
+
+        Args:
+            req (GetPoints.Request): empry
+            res (GetPoints.Response): pointss
+
+        Returns:
+            GetPoints.Response: points
+        """
+
+        for p_id in self.__points_dict:
+            point = Point()
+            point.id = p_id
+            point.pose = self.__points_dict[p_id]
+            res.points.append(point)
+
+        return res
+
+    def __add_point(self,
+                    req: AddPoint.Request,
                     res: AddPoint.Response) -> AddPoint.Response:
         """ srv callback to add new points
 
@@ -93,36 +141,16 @@ class TopoNavNode(Node):
             AddPoint.Response: overwrites an existing point?
         """
 
-        overwrite = req.id in self.__points_dict
+        point = req.point
+        overwrite = point.id in self.__points_dict
         res.overwrite = overwrite
 
         if not overwrite:
-            self.__points_dict[req.id] = {}
+            self.__points_dict[point.id] = {}
 
-        self.__points_dict[req.id]["x"] = req.x
-        self.__points_dict[req.id]["y"] = req.x
-        self.__points_dict[req.id]["z"] = req.x
-        self.__points_dict[req.id]["w"] = req.x
+        self.__points_dict[point.id] = point.pose
 
         return res
-
-    def _create_goal(self, point: Dict[str, float]) -> NavigateToPose.Goal:
-        """ create a goal for ros2 navigation
-
-        Args:
-            point (Dict[float]): dictionary of floats that represent a point
-
-        Returns:
-            NavigateToPose.Goal: ros2 navigation goal
-        """
-
-        goal = NavigateToPose.Goal()
-        goal.pose.pose.position.x = point["x"]
-        goal.pose.pose.position.y = point["y"]
-        goal.pose.pose.orientation.z = point["y"]
-        goal.pose.pose.orientation.w = point["y"]
-
-        return goal
 
     def destroy(self):
         """ destroy node method """
@@ -151,8 +179,9 @@ class TopoNavNode(Node):
             goal_handle.abort()
             return result
 
-        point = self.__points_dict[request.point]
-        goal = self._create_goal(point)
+        pose = self.__points_dict[request.point]
+        goal = NavigateToPose.Goal()
+        goal.pose.pose = pose
 
         self.__action_client.wait_for_server()
         self.__action_client.send_goal(goal)
