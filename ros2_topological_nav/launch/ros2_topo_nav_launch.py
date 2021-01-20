@@ -25,7 +25,7 @@ def generate_launch_description():
     nav_action = LaunchConfiguration('nav_action')
     declare_nav_action_cmd = DeclareLaunchArgument(
         'nav_action',
-        default_value='navigate_to_pose',
+        default_value='/navigate_to_pose',
         description='Navigation2 action server name')
 
     #
@@ -36,6 +36,7 @@ def generate_launch_description():
         package=pkg_name,
         executable='topo_nav_node',
         name='topo_nav_node',
+        namespace="topo_nav/",
         parameters=[points,
                     {'nav_action': nav_action}]
 
