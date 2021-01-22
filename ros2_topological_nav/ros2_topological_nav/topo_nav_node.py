@@ -190,9 +190,9 @@ class TopoNavNode(Node):
         if self.__action_client.is_succeeded():
             goal_handle.succeed()
 
-        elif self.__action_client.is_cancelled() and self.__server_canceled:
-            while goal_handle.is_active:
-                time.sleep(1)
+        elif self.__server_canceled:
+            while not goal_handle.is_cancel_requested:
+                time.sleep(0.05)
             goal_handle.canceled()
 
         else:
