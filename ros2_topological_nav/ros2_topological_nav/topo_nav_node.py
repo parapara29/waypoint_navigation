@@ -1,7 +1,6 @@
 
 """ Simple Topological Navigation """
 
-import time
 from typing import List
 import rclpy
 
@@ -29,7 +28,6 @@ class TopoNavNode(Node):
         super().__init__("topo_nav_node")
 
         self.__points_dict = {}
-        self.__server_canceled = False
 
         # param names
         nav_action_param_name = "nav_action"
@@ -161,7 +159,6 @@ class TopoNavNode(Node):
     def __cancel_callback(self):
         """ cancel action server """
 
-        self.__server_canceled = True
         self.__action_client.cancel_goal()
 
     def __execute_server(self, goal_handle):
@@ -171,7 +168,6 @@ class TopoNavNode(Node):
             goal_handle: goal_handle
         """
 
-        self.__server_canceled = False
         request = goal_handle.request
         result = TopoNav.Result()
 
@@ -190,9 +186,8 @@ class TopoNavNode(Node):
         if self.__action_client.is_succeeded():
             goal_handle.succeed()
 
-        elif self.__server_canceled:
-            while not goal_handle.is_cancel_requested:
-                time.sleep(0.05)
+        elif self.__action_server.is_canceled():
+            self.__action_server.wait_for_canceling()
             goal_handle.canceled()
 
         else:
