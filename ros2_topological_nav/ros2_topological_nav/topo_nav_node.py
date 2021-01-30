@@ -150,9 +150,10 @@ class TopoNavNode(Node):
 
         return res
 
-    def destroy(self):
+    def destroy_node(self):
         """ destroy node method """
 
+        self.__action_client.destroy()
         self.__action_server.destroy()
         super().destroy_node()
 
@@ -202,8 +203,6 @@ def main(args=None):
     node = TopoNavNode()
 
     node.join_spin()
-
-    node.destroy_node()
 
     rclpy.shutdown()
 
