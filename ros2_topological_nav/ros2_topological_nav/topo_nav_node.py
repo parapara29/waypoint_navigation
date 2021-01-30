@@ -150,13 +150,6 @@ class TopoNavNode(Node):
 
         return res
 
-    def destroy_node(self):
-        """ destroy node method """
-
-        self.__action_client.destroy()
-        self.__action_server.destroy()
-        super().destroy_node()
-
     def __cancel_callback(self):
         """ cancel action server """
 
