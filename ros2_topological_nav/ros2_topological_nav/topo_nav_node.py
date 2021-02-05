@@ -14,11 +14,7 @@ from ros2_topological_nav_interfaces.srv import (
     GetPoints
 )
 
-from custom_ros2 import (
-    Node,
-    ActionSingleServer,
-    ActionClient
-)
+from custom_ros2 import Node
 
 
 class TopoNavNode(Node):
@@ -48,14 +44,13 @@ class TopoNavNode(Node):
         self._load_points(points)
 
         # actions
-        self.__action_client = ActionClient(
-            self, NavigateToPose, nav_action)
-        self.__action_server = ActionSingleServer(self,
-                                                  TopoNav,
-                                                  "navigation",
-                                                  execute_callback=self.__execute_server,
-                                                  cancel_callback=self.__cancel_callback
-                                                  )
+        self.__action_client = self.create_action_client(
+            NavigateToPose, nav_action)
+        self.__action_server = self.create_action_server(TopoNav,
+                                                         "navigation",
+                                                         execute_callback=self.__execute_server,
+                                                         cancel_callback=self.__cancel_callback
+                                                         )
 
         # services
         self.create_service(
