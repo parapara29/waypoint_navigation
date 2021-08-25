@@ -14,7 +14,7 @@ from ros2_topological_nav_interfaces.srv import (
     GetPoints
 )
 
-from custom_ros2 import Node
+from simple_node import Node
 
 
 class TopoNavNode(Node):
