@@ -6,9 +6,9 @@ import rclpy
 
 from geometry_msgs.msg import Pose
 from nav2_msgs.action import NavigateToPose
-from ros2_topological_nav_interfaces.action import TopoNav
-from ros2_topological_nav_interfaces.msg import Point
-from ros2_topological_nav_interfaces.srv import (
+from topological_nav_interfaces.action import TopoNav
+from topological_nav_interfaces.msg import Point
+from topological_nav_interfaces.srv import (
     AddPoint,
     GetPoint,
     GetPoints
@@ -195,5 +195,5 @@ def main(args=None):
     rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

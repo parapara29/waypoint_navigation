@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(ros2_topological_nav_interfaces)
+project(topological_nav_interfaces)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
