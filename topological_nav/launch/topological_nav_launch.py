@@ -32,7 +32,7 @@ def generate_launch_description():
     # NODES
     #
 
-    topo_nav_node_cmd = Node(
+    topological_nav_node_cmd = Node(
         package=pkg_name,
         executable="topological_nav_node",
         name="topological_nav_node",
@@ -49,6 +49,6 @@ def generate_launch_description():
     ld.add_action(declare_points_cmd)
     ld.add_action(declare_nav_action_cmd)
 
-    ld.add_action(topo_nav_node_cmd)
+    ld.add_action(topological_nav_node_cmd)
 
     return ld

@@ -21,7 +21,7 @@ class TopoNavNode(Node):
     """ Topological Navigation Node """
 
     def __init__(self):
-        super().__init__("topo_nav_node")
+        super().__init__("topological_nav_node")
 
         self.__points_dict = {}
 
