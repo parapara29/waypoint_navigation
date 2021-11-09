@@ -41,7 +41,7 @@ class TopoNavNode(Node):
             points_param_name).get_parameter_value().string_array_value
 
         # load points
-        self._load_points(points)
+        self.load_points(points)
 
         # actions
         self.__action_client = self.create_action_client(
@@ -65,7 +65,7 @@ class TopoNavNode(Node):
             GetPoints, "get_points", self.__get_points,
             callback_group=self.__action_server.callback_group)
 
-    def _load_points(self, points: List[str]):
+    def load_points(self, points: List[str]):
         """ load points of list strings into a dictionary of floats
 
         Args:
@@ -150,11 +150,14 @@ class TopoNavNode(Node):
 
         self.__action_client.cancel_goal()
 
-    def __execute_server(self, goal_handle):
+    def __execute_server(self, goal_handle) -> TopoNav.Result:
         """ execute action server
 
         Args:
             goal_handle: goal_handle
+
+        Returns:
+            TopoNav.Result: navigation result
         """
 
         request = goal_handle.request
