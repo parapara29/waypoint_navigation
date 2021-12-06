@@ -106,8 +106,8 @@ class TopoNavNode(Node):
         """ srv callback to get all points
 
         Args:
-            req (GetPoints.Request): empry
-            res (GetPoints.Response): pointss
+            req (GetPoints.Request): empty
+            res (GetPoints.Response): points
 
         Returns:
             GetPoints.Response: points
