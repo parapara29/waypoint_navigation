@@ -32,7 +32,7 @@ class TopoNavNode(Node):
         # declaring params
         self.declare_parameter(nav_action_param_name,
                                "/navigate_to_pose")
-        self.declare_parameter(points_param_name, [])
+        self.declare_parameter(points_param_name, None)
 
         # getting params
         nav_action = self.get_parameter(
@@ -71,6 +71,9 @@ class TopoNavNode(Node):
         Args:
             points (List[str]): list of points
         """
+
+        if not points:
+            return
 
         for i in range(0, len(points), 5):
 
@@ -170,6 +173,7 @@ class TopoNavNode(Node):
         pose = self.__points_dict[request.point]
         goal = NavigateToPose.Goal()
         goal.pose.pose = pose
+        goal.pose.header.frame_id = "map"
 
         self.__action_client.wait_for_server()
         self.__action_client.send_goal(goal)
