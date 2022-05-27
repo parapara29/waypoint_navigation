@@ -2,13 +2,24 @@
 
 Waypoint navigation for ROS2
 
-## Launch
+### Tools dependencies
 
 ```shell
-$ ros2 launch waypoint_navigation waypoint_navigation_launch.py
+$ cd ~/ros2_ws/src
+$ git clone ssh://git@niebla.unileon.es:5022/mgonzs/waypoint_navigation.git
+$ cd ~/ros2_ws
+$ colcon build
 ```
 
-## Shell Examples
+## Usage
+
+### Launch
+
+```shell
+$ ros2 launch waypoint_navigation waypoint_navigation.launch.py
+```
+
+### Shell Examples
 
 ```shell
 $ ros2 service call /waypoint_navigation/add_wp waypoint_navigation_interfaces/srv/AddWp "{'wp':{'id':'kitchen', 'pose':{'position':{'x':3.79, 'y':6.77, 'z':0.0}, 'orientation':{'x':0.0, 'y':0.0, 'z':0.99, 'w':0.12}}}}"
