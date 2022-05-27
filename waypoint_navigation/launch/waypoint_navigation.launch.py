@@ -7,7 +7,7 @@ import ament_index_python
 
 def generate_launch_description():
 
-    pkg_name = "topological_nav"
+    pkg_name = "waypoint_navigation"
     stdout_linebuf_envvar = SetEnvironmentVariable(
         "RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED", "1")
 
@@ -32,11 +32,11 @@ def generate_launch_description():
     # NODES
     #
 
-    topological_nav_node_cmd = Node(
+    waypoint_navigation_node_cmd = Node(
         package=pkg_name,
-        executable="topological_nav_node",
-        name="topological_nav_node",
-        namespace="topological_nav/",
+        executable="waypoint_navigation_node",
+        name="waypoint_navigation_node",
+        namespace="waypoint_navigation/",
         parameters=[points,
                     {"nav_action": nav_action}]
 
@@ -49,6 +49,6 @@ def generate_launch_description():
     ld.add_action(declare_points_cmd)
     ld.add_action(declare_nav_action_cmd)
 
-    ld.add_action(topological_nav_node_cmd)
+    ld.add_action(waypoint_navigation_node_cmd)
 
     return ld

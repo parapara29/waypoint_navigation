@@ -1,21 +1,19 @@
-
-
-topological_nav:
-  topological_nav_node:
+waypoint_navigation:
+  waypoint_navigation_node:
     ros__parameters:
-      points:
+      wps:
         - "1"
         - "1.84"
         - "1.34"
         - "-0.03"
         - "1.0"
-        
+
         - "bathroom"
         - "5.0"
         - "3.68"
         - "0.81"
         - "0.59"
-        
+
         - "3"
         - "7.34"
         - "6.45"

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(topological_nav_interfaces)
+project(waypoint_navigation_interfaces)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -36,11 +36,11 @@ endif()
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "action/TopoNav.action"
-  "srv/AddPoint.srv"
-  "srv/GetPoint.srv"
-  "srv/GetPoints.srv"
-  "msg/Point.msg"
+  "action/NavigateToWp.action"
+  "srv/AddWp.srv"
+  "srv/GetWp.srv"
+  "srv/GetWps.srv"
+  "msg/Wp.msg"
   DEPENDENCIES geometry_msgs
 )
 

@@ -1,71 +1,71 @@
 
-""" Simple Topological Navigation """
+""" Waypoint Navigation """
 
 from typing import List
 import rclpy
 
 from geometry_msgs.msg import Pose
 from nav2_msgs.action import NavigateToPose
-from topological_nav_interfaces.action import TopoNav
-from topological_nav_interfaces.msg import Point
-from topological_nav_interfaces.srv import (
-    AddPoint,
-    GetPoint,
-    GetPoints
+from waypoint_navigation_interfaces.action import NavigateToWp
+from waypoint_navigation_interfaces.msg import Wp
+from waypoint_navigation_interfaces.srv import (
+    AddWp,
+    GetWp,
+    GetWps
 )
 
 from simple_node import Node
 
 
-class TopoNavNode(Node):
-    """ Topological Navigation Node """
+class WaypointNavigationNode(Node):
+    """ Waypoint Navigation Node """
 
     def __init__(self):
-        super().__init__("topological_nav_node")
+        super().__init__("waypoint_navigation_node")
 
-        self.__points_dict = {}
+        self.__wp_dict = {}
 
         # param names
         nav_action_param_name = "nav_action"
-        points_param_name = "points"
+        wps_param_name = "wps"
 
         # declaring params
         self.declare_parameter(nav_action_param_name,
                                "/navigate_to_pose")
-        self.declare_parameter(points_param_name, None)
+        self.declare_parameter(wps_param_name, None)
 
         # getting params
         nav_action = self.get_parameter(
             nav_action_param_name).get_parameter_value().string_value
-        points = self.get_parameter(
-            points_param_name).get_parameter_value().string_array_value
+        wps = self.get_parameter(
+            wps_param_name).get_parameter_value().string_array_value
 
         # load points
-        self.load_points(points)
+        self.load_wps(wps)
 
         # actions
         self.__action_client = self.create_action_client(
             NavigateToPose, nav_action)
-        self.__action_server = self.create_action_server(TopoNav,
-                                                         "navigation",
+        self.__action_server = self.create_action_server(NavigateToWp,
+                                                         "navigate_to_wp",
                                                          execute_callback=self.__execute_server,
                                                          cancel_callback=self.__cancel_callback
                                                          )
 
         # services
         self.create_service(
-            AddPoint, "add_point", self.__add_point,
+            AddWp, "add_wp", self.__add_wp,
             callback_group=self.__action_server.callback_group)
 
         self.create_service(
-            GetPoint, "get_point", self.__get_point,
+            GetWp, "get_wp", self.__get_wp,
             callback_group=self.__action_server.callback_group)
 
         self.create_service(
-            GetPoints, "get_points", self.__get_points,
+            GetWps, "get_wps", self.__get_wps,
             callback_group=self.__action_server.callback_group)
 
-    def load_points(self, points: List[str]):
+    def load_wps(self, points: List[str]):
         """ load points of list strings into a dictionary of floats
 
         Args:
@@ -77,15 +77,15 @@ class TopoNavNode(Node):
 
         for i in range(0, len(points), 5):
 
-            self.__points_dict[points[i]] = Pose()
-            self.__points_dict[points[i]].position.x = float(points[i + 1])
-            self.__points_dict[points[i]].position.y = float(points[i + 2])
-            self.__points_dict[points[i]].orientation.z = float(points[i + 3])
-            self.__points_dict[points[i]].orientation.w = float(points[i + 4])
+            self.__wp_dict[points[i]] = Pose()
+            self.__wp_dict[points[i]].position.x = float(points[i + 1])
+            self.__wp_dict[points[i]].position.y = float(points[i + 2])
+            self.__wp_dict[points[i]].orientation.z = float(points[i + 3])
+            self.__wp_dict[points[i]].orientation.w = float(points[i + 4])
 
-    def __get_point(self,
-                    req: GetPoint.Request,
-                    res: GetPoint.Response) -> GetPoint.Response:
+    def __get_wp(self,
+                 req: GetWp.Request,
+                 res: GetWp.Response) -> GetWp.Response:
         """ srv callback to get a point
 
         Args:
@@ -96,16 +96,16 @@ class TopoNavNode(Node):
             GetPoint.Response: point
         """
 
-        if req.point in self.__points_dict:
-            res.point = Point()
-            res.point.id = req.point
-            res.point.pose = self.__points_dict[req.point]
+        if req.wp_id in self.__wp_dict:
+            res.wp = Wp()
+            res.wp.id = req.wp_id
+            res.wp.pose = self.__wp_dict[req.wp_id]
 
         return res
 
-    def __get_points(self,
-                     req: GetPoints.Request,
-                     res: GetPoints.Response) -> GetPoints.Response:
+    def __get_wps(self,
+                  req: GetWps.Request,
+                  res: GetWps.Response) -> GetWps.Response:
         """ srv callback to get all points
 
         Args:
@@ -116,17 +116,17 @@ class TopoNavNode(Node):
             GetPoints.Response: points
         """
 
-        for p_id in self.__points_dict:
-            point = Point()
-            point.id = p_id
-            point.pose = self.__points_dict[p_id]
-            res.points.append(point)
+        for p_id in self.__wp_dict:
+            wp = Wp()
+            wp.id = p_id
+            wp.pose = self.__wp_dict[p_id]
+            res.wps.append(wp)
 
         return res
 
-    def __add_point(self,
-                    req: AddPoint.Request,
-                    res: AddPoint.Response) -> AddPoint.Response:
+    def __add_wp(self,
+                 req: AddWp.Request,
+                 res: AddWp.Response) -> AddWp.Response:
         """ srv callback to add new points
 
         Args:
@@ -137,14 +137,14 @@ class TopoNavNode(Node):
             AddPoint.Response: overwrites an existing point?
         """
 
-        point = req.point
-        overwrite = point.id in self.__points_dict
+        wp = req.wp
+        overwrite = wp.id in self.__wp_dict
         res.overwrite = overwrite
 
         if not overwrite:
-            self.__points_dict[point.id] = {}
+            self.__wp_dict[wp.id] = {}
 
-        self.__points_dict[point.id] = point.pose
+        self.__wp_dict[wp.id] = wp.pose
 
         return res
 
@@ -153,24 +153,24 @@ class TopoNavNode(Node):
 
         self.__action_client.cancel_goal()
 
-    def __execute_server(self, goal_handle) -> TopoNav.Result:
+    def __execute_server(self, goal_handle) -> NavigateToWp.Result:
         """ execute action server
 
         Args:
             goal_handle: goal_handle
 
         Returns:
-            TopoNav.Result: navigation result
+            NavigateToWp.Result: navigation result
         """
 
         request = goal_handle.request
-        result = TopoNav.Result()
+        result = NavigateToWp.Result()
 
-        if request.point not in self.__points_dict:
+        if request.wp_id not in self.__wp_dict:
             goal_handle.abort()
             return result
 
-        pose = self.__points_dict[request.point]
+        pose = self.__wp_dict[request.wp_id]
         goal = NavigateToPose.Goal()
         goal.pose.pose = pose
         goal.pose.header.frame_id = "map"
@@ -195,7 +195,7 @@ class TopoNavNode(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    node = TopoNavNode()
+    node = WaypointNavigationNode()
 
     node.join_spin()
 
