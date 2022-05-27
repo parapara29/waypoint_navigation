@@ -37,11 +37,11 @@ class WaypointNavigationNode(Node):
         # getting params
         nav_action = self.get_parameter(
             nav_action_param_name).get_parameter_value().string_value
-        wps = self.get_parameter(
+        waypoints = self.get_parameter(
             wps_param_name).get_parameter_value().string_array_value
 
         # load points
-        self.load_wps(wps)
+        self.load_wps(waypoints)
 
         # actions
         self.__action_client = self.create_action_client(
@@ -65,23 +65,25 @@ class WaypointNavigationNode(Node):
             GetWps, "get_wps", self.__get_wps,
             callback_group=self.__action_server.callback_group)
 
-    def load_wps(self, points: List[str]):
-        """ load points of list strings into a dictionary of floats
+    def load_wps(self, waypoints: List[str]):
+        """ load waypoints of list strings into a dictionary of floats
 
         Args:
             points (List[str]): list of points
         """
 
-        if not points:
+        if not waypoints:
             return
 
-        for i in range(0, len(points), 5):
+        for i in range(0, len(waypoints), 5):
 
-            self.__wp_dict[points[i]] = Pose()
-            self.__wp_dict[points[i]].position.x = float(points[i + 1])
-            self.__wp_dict[points[i]].position.y = float(points[i + 2])
-            self.__wp_dict[points[i]].orientation.z = float(points[i + 3])
-            self.__wp_dict[points[i]].orientation.w = float(points[i + 4])
+            self.__wp_dict[waypoints[i]] = Pose()
+            self.__wp_dict[waypoints[i]].position.x = float(waypoints[i + 1])
+            self.__wp_dict[waypoints[i]].position.y = float(waypoints[i + 2])
+            self.__wp_dict[waypoints[i]].orientation.z = float(
+                waypoints[i + 3])
+            self.__wp_dict[waypoints[i]].orientation.w = float(
+                waypoints[i + 4])
 
     def __get_wp(self,
                  req: GetWp.Request,

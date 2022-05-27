@@ -15,12 +15,12 @@ def generate_launch_description():
     # ARGS
     #
 
-    points = LaunchConfiguration("points")
+    points = LaunchConfiguration("wps")
     declare_points_cmd = DeclareLaunchArgument(
-        "points",
+        "wps",
         default_value=ament_index_python.get_package_share_directory(
             pkg_name) + "/params/apartamento_leon.yaml",
-        description="YAML points file")
+        description="YAML waypoints file")
 
     nav_action = LaunchConfiguration("nav_action")
     declare_nav_action_cmd = DeclareLaunchArgument(
