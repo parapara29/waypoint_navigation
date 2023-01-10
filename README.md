@@ -2,11 +2,11 @@
 
 Waypoint navigation for ROS2
 
-### Tools dependencies
+### Installation
 
 ```shell
 $ cd ~/ros2_ws/src
-$ git clone ssh://git@niebla.unileon.es:5022/mgonzs/waypoint_navigation.git
+$ git clone https://github.com/MERLIN2-ARCH/waypoint_navigation.git
 $ cd ~/ros2_ws
 $ colcon build
 ```
