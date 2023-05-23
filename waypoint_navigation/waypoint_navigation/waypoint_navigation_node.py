@@ -184,8 +184,7 @@ class WaypointNavigationNode(Node):
         if self.__action_client.is_succeeded():
             goal_handle.succeed()
 
-        elif self.__action_server.is_canceled():
-            self.__action_server.wait_for_canceling()
+        elif goal_handle.is_cancel_requested:
             goal_handle.canceled()
 
         else:
