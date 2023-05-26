@@ -6,9 +6,9 @@ import rclpy
 
 from geometry_msgs.msg import Pose
 from nav2_msgs.action import NavigateToPose
-from waypoint_navigation_interfaces.action import NavigateToWp
-from waypoint_navigation_interfaces.msg import Wp
-from waypoint_navigation_interfaces.srv import (
+from waypoint_navigation_msgs.action import NavigateToWp
+from waypoint_navigation_msgs.msg import Wp
+from waypoint_navigation_msgs.srv import (
     AddWp,
     GetWp,
     GetWps
